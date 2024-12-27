@@ -1,13 +1,28 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import router from './app/routes';
+import globalErrorHandler from './app/middlewares/globalErrorhandler';
+import notFound from './app/middlewares/notFound';
 const app: Application = express();
 
 // parser
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: ['http://localhost:5173'] }));
+app.use(cookieParser());
 
-app.get('/', (req: Request, res: Response) => {
+// application routes
+app.use('/api/', router);
+
+const test = async (req: Request, res: Response) => {
   res.send('Hello World!');
-});
+};
+
+app.get('/', test);
+
+app.use(globalErrorHandler);
+
+// NOT Found
+app.use(notFound);
 
 export default app;
