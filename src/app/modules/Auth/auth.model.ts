@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
-import { TUser } from './auth.interface';
+import { TUser, UserModel } from './auth.interface';
 
-const userSchema = new Schema<TUser>(
+const userSchema = new Schema<TUser, UserModel>(
   {
     name: {
       type: String,
@@ -35,4 +35,8 @@ const userSchema = new Schema<TUser>(
   },
 );
 
-export const User = model<TUser>('User', userSchema);
+userSchema.statics.isUserExists = async function (email: string) {
+  return await User.findOne({ email });
+};
+
+export const User = model<TUser, UserModel>('User', userSchema);
