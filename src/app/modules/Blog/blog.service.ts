@@ -1,3 +1,5 @@
+import QueryBuilder from '../../builder/QueryBuilder';
+import { BlogSearchableFields } from './blog.constant';
 import { TBlog } from './blog.interface';
 import { Blog } from './blog.model';
 
@@ -25,8 +27,25 @@ const deleteBlogFromDB = async (id: string) => {
   await Blog.findByIdAndDelete(id);
 };
 
+const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
+  console.log(query);
+  const blogQuery = new QueryBuilder(
+    Blog.find()
+      .populate('author')
+      .select('-isPublished -createdAt -updatedAt -__v'),
+    query,
+  )
+    .search(BlogSearchableFields)
+    .filter();
+
+  const result = await blogQuery.modelQuery;
+
+  return result;
+};
+
 export const BlogServices = {
   createBlogIntoDB,
   updateBlogIntoDB,
   deleteBlogFromDB,
+  getAllBlogsFromDB,
 };
