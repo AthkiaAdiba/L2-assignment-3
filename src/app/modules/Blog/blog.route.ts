@@ -9,8 +9,17 @@ const router = express.Router();
 router.post(
   '/',
   auth('user'),
-  validateRequest(BlogValidations.blogValidationSchema),
+  validateRequest(BlogValidations.createBlogValidationSchema),
   BlogControllers.createBlog,
 );
+
+router.patch(
+  '/:id',
+  auth('user'),
+  validateRequest(BlogValidations.createBlogValidationSchema),
+  BlogControllers.updateBlog,
+);
+
+router.delete('/:id', auth('user'), BlogControllers.deleteBlog);
 
 export const BlogRoutes = router;
