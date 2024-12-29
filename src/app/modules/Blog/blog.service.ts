@@ -26,7 +26,7 @@ const deleteBlogFromDB = async (id: string) => {
 };
 
 const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
-  console.log(query);
+  // console.log(query);
   const queryObj = { ...query }; // copy
 
   const blogSearchableFields = ['title', 'content'];
