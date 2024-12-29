@@ -1,5 +1,3 @@
-import QueryBuilder from '../../builder/QueryBuilder';
-import { BlogSearchableFields } from './blog.constant';
 import { TBlog } from './blog.interface';
 import { Blog } from './blog.model';
 
@@ -29,18 +27,43 @@ const deleteBlogFromDB = async (id: string) => {
 
 const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
   console.log(query);
-  const blogQuery = new QueryBuilder(
-    Blog.find()
-      .populate('author')
-      .select('-isPublished -createdAt -updatedAt -__v'),
-    query,
-  )
-    .search(BlogSearchableFields)
-    .filter();
+  const queryObj = { ...query }; // copy
 
-  const result = await blogQuery.modelQuery;
+  const blogSearchableFields = ['title', 'content'];
 
-  return result;
+  let search = '';
+
+  if (query?.search) {
+    search = query?.search as string;
+  }
+
+  const searchQuery = Blog.find({
+    $or: blogSearchableFields.map((field) => ({
+      [field]: { $regex: search, $options: 'i' },
+    })),
+  });
+
+  // Filtering
+  const excludeFields = ['search', 'sortBy', 'sortOrder'];
+  excludeFields.forEach((el) => delete queryObj[el]);
+  // console.log(query, queryObj);
+
+  const filterQuery = searchQuery
+    .find(queryObj)
+    .populate('author')
+    .select('-isPublished -createdAt -updatedAt -__v');
+
+  let sortBy = '-createdAt';
+
+  if (query.sortOrder === 'desc') {
+    sortBy = `-${query.sortBy as string}`;
+  } else if (query.sortOrder === 'asc') {
+    sortBy = query.sortBy as string;
+  }
+
+  const sortQuery = await filterQuery.sort(sortBy);
+
+  return sortQuery;
 };
 
 export const BlogServices = {
