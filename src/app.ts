@@ -12,7 +12,7 @@ app.use(cors());
 app.use(cookieParser());
 
 // application routes
-app.use('/api/', router);
+app.use('/api', router);
 
 const test = async (req: Request, res: Response) => {
   res.send('Hello World!');
